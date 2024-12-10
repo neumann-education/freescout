@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asuntos Freescout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            width: 80%;
+            max-width: 1200px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .left-section, .right-section {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .left-section {
+            width: 50%;
+            background: #f9f9f9;
+            border-right: 1px solid #ccc;
+        }
+        .right-section {
+            width: 50%;
+            background: #fff;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        select, ul, input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        ul li:hover {
+            background-color: #e0e0e0;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        .result h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .result p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .result strong {
+            color: #333;
+        }
+        .right-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .right-section input[type="text"],
+        .right-section input[type="email"],
+        .right-section textarea {
+            margin-bottom: 15px;
+        }
+        .right-section textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .right-section button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .right-section button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sección Izquierda: Selección de Asuntos -->
+        <div class="left-section">
+            <h1>Asuntos Freescout</h1>
+            <label for="tipoConsulta">Selecciona un Tipo de Consulta:</label>
+            <select id="tipoConsulta">
+                <option value="">-- Selecciona un tipo de consulta --</option>
+                <option value="3. Compromisos de pagos, estado de cuenta">1. Compromisos de pagos, estado de cuenta</option>
+                <option value="1. Consultas académicas">2. Consultas académicas</option>
+                <option value="6.Seguimiento, Retención y Recuperación">3. Seguimiento, Retención y Recuperación</option>
+                <option value="5. Justificación de inasistencias">4. Justificación de inasistencias</option>
+                <option value="2. Compras y emisión de documentos">5. Compras y emisión de documentos</option>
+            </select>
+
+            <div id="asuntosEspecificos">
+                <label>Selecciona un Asunto Específico:</label>
+                <ul id="listaAsuntos"></ul>
+            </div>
+
+            <div class="result" id="resultado">
+                <h2>Detalles del Asunto:</h2>
+                <p><strong>Detalles del Asunto:</strong> <span id="detallesAsunto"></span></p>
+                <p><strong>Ejecutivo Responsable:</strong> <span id="ejecutivo"></span></p>
+                <p><strong>Área:</strong> <span id="area"></span></p>
+            </div>
+        </div>
+
+        <!-- Sección Derecha: Formulario de Datos -->
+        <div class="right-section">
+            <h2>Formulario de Consulta</h2>
+            <label for="nombres">Nombres (obligatorio):</label>
+            <input type="text" id="nombres" placeholder="Ingresa tus nombres" required>
+
+            <label for="apellidos">Apellidos (obligatorio):</label>
+            <input type="text" id="apellidos" placeholder="Ingresa tus apellidos" required>
+
+            <label for="curso">Curso (opcional):</label>
+            <input type="text" id="curso" placeholder="Ingresa el curso">
+
+            <label for="docente">Docente (opcional):</label>
+            <input type="text" id="docente" placeholder="Ingresa el docente">
+
+            <label for="descripcion">Descripción de la consulta (obligatorio):</label>
+            <textarea id="descripcion" placeholder="Describe tu consulta" required></textarea>
+
+            <label for="correo">Correo (obligatorio):</label>
+            <input type="email" id="correo" placeholder="Ingresa tu correo" required>
+
+            <button onclick="enviarConsulta()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos de la Hoja 3
+        const datos = {
+            "3. Compromisos de pagos, estado de cuenta": [
+                {
+                    asunto: "Compromiso de pago",
+                    detalles: "El estudiante indica una fecha como compromiso de pago y así obtener acceso a las plataformas. Todo compromiso es evaluado.",
+                    ejecutivo: "Erika Mabel Chipana Copa",
+                    area: "COBRANZAS"
+                },
+                {
+                    asunto: "Pago al contado",
+                    detalles: "Estudiante desea realizar el pago completo de manera anticipada de los derechos de enseñanza de un ciclo.",
+                    ejecutivo: "Erika Mabel Chipana Copa",
+                    area: "COBRANZAS"
+                },
+                {
+                    asunto: "Pago parcial",
+                    detalles: "Estudiante con cuota vencida, desea abonar el 50% de la cuota para un compromiso no mayor a 10 días dentro del mes vigente.",
+                    ejecutivo: "Erika Mabel Chipana Copa",
+                    area: "COBRANZAS"
+                },
+                {
+                    asunto: "Métodos de pago/ medios de pago",
+                    detalles: "Información de medios de pago como: A) Agentes, bancos, aplicativos de banca móvil BCP/Interbank y YAPE. B) Pagos electrónicos.",
+                    ejecutivo: "Erika Mabel Chipana Copa",
+                    area: "COBRANZAS"
+                }
+            ],
+            "1. Consultas académicas": [
+                {
+                    asunto: "Atención al Estudiante Presencial",
+                    detalles: "Matrículas, consultas, aperturas de tópicos, correo docente, cronograma académico, examen extraordinario, optativos, becas asistenciales.",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Visualización de notas de procesos y acta personal",
+                    detalles: "Visualización notas de procesos y acta personal, Consultas sobre el curso de EFSRT, Compra de examen optativo 6to ciclo, apertura de módulo 6to ciclo, Recuperación de cursos desaprobados, Retiro de curso, Retiro de semestre académico, Reservas de Matrícula, Examen extraordinario, Registro de huellas.",
+                    ejecutivo: "Fiorela Betzabe Rejas Céspedes",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Consultas sobre el curso de EFSRT",
+                    detalles: "Incluye fechas de inicio, modalidad del curso, notas del curso, docente a cargo.",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Compra de examen optativo 6to ciclo",
+                    detalles: "Dado que la modalidad de 6to ciclo es llevar un curso por mes, al término de este se rinde recuperación de la nota de la asignatura con un examen optativo, este no se compra directamente desde activa si no que se solicita por correo (soporte@neumann.edu.pe). Incluye programación para el examen (fecha, hora y salón).",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Apertura de módulos de 6to ciclo",
+                    detalles: "Incluye fechas de inicio de módulo, programación de las asignaturas.",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Recuperación de cursos desaprobados",
+                    detalles: "Referente a los cursos a cargo que los alumnos llevan de semestres anteriores, Incluye fechas de inicio y costo del curso.",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Retiro de curso",
+                    detalles: "Referente al retiro del semestre del curso en mención, incluye información del reajuste económico.",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                },
+                {
+                    asunto: "Examen extraordinario",
+                    detalles: "Referente al examen de recuperación para las asignaturas desaprobadas de años anteriores o correspondientes a mallas curriculares antiguas.",
+                    ejecutivo: "frejas@neumann.edu.pe",
+                    area: "OSE-Presencial"
+                }
+            ],
+            "6.Seguimiento, Retención y Recuperación": [
+                {
+                    asunto: "Retiro de semestre académico",
+                    detalles: "Referente al retiro del semestre de todos los cursos registrados al inicio, incluye información sobre el reajuste económico.",
+                    ejecutivo: "María Luciana Vicente Roldan",
+                    area: "SR-Presencial"
+                },
+                {
+                    asunto: "Reservas de Matrícula",
+                    detalles: "Referente a reserva de matrícula para el siguiente semestre académico, válido para 4 semestres posteriores al registro inicial.",
+                    ejecutivo: "María Luciana Vicente Roldan",
+                    area: "SR-Presencial"
+                },
+                {
+                    asunto: "Registro de huellas",
+                    detalles: "Referente al no registro o error en marcación de las huellas en los molinetes.",
+                    ejecutivo: "María Luciana Vicente Roldan",
+                    area: "SR-Presencial"
+                },
+                {
+                    asunto: "Cambio a la modalidad virtual",
+                    detalles: "Referente al cambio de modalidad de estudio, sea de presencial a virtual o viceversa, tener en cuenta que el cambio solo se realiza una vez en todo el periodo de la carrera, debiendo concluir los estudios académicos en la modalidad última registrada.",
+                    ejecutivo: "María Luciana Vicente Roldan",
+                    area: "SR-Presencial"
+                },
+                {
+                    asunto: "Justificaciones",
+                    detalles: "Referente a permisos de salida antes del horario de clases, faltas, tardanzas.",
+                    ejecutivo: "María Luciana Vicente Roldan",
+                    area: "SR-Presencial"
+                }
+            ],
+            "5. Justificación de inasistencias": [
+                {
+                    asunto: "Justificaciones",
+                    detalles: "Referente a permisos de salida antes del horario de clases, faltas, tardanzas.",
+                    ejecutivo: "María Luciana Vicente Roldan",
+                    area: "SR-Presencial"
+                }
+            ],
+            "2. Compras y emisión de documentos": [
+                {
+                    asunto: "Solicitud de documentos",
+                    detalles: "Referente al pedido de emisión de documentación de certificados progresivos, costos, tiempo de emisión y modalidad de entrega.",
+                    ejecutivo: "nieves.colque@neumann.education",
+                    area: "REGISTRO"
+                }
+            ]
+        };
+
+        // Obtener elementos del DOM
+        const tipoConsulta = document.getElementById("tipoConsulta");
+        const listaAsuntos = document.getElementById("listaAsuntos");
+        const resultado = document.getElementById("resultado");
+        const detallesAsunto = document.getElementById("detallesAsunto");
+        const ejecutivo = document.getElementById("ejecutivo");
+        const area = document.getElementById("area");
+
+        // Evento change para el combo box de Tipo de Consulta
+        tipoConsulta.addEventListener("change", function () {
+            const seleccion = tipoConsulta.value;
+            listaAsuntos.innerHTML = ""; // Limpiar lista de asuntos
+            resultado.style.display = "none"; // Ocultar resultado
+
+            if (seleccion && datos[seleccion]) {
+                // Mostrar lista de asuntos específicos
+                datos[seleccion].forEach(item => {
+                    const li = document.createElement("li");
+                    li.textContent = item.asunto;
+                    li.addEventListener("click", function () {
+                        detallesAsunto.textContent = item.detalles;
+                        ejecutivo.textContent = item.ejecutivo;
+                        area.textContent = item.area;
+                        resultado.style.display = "block";
+                    });
+                    listaAsuntos.appendChild(li);
+                });
+            }
+        });
+
+        // Función para enviar la consulta
+        function enviarConsulta() {
+            const nombres = document.getElementById("nombres").value;
+            const apellidos = document.getElementById("apellidos").value;
+            const curso = document.getElementById("curso").value;
+            const docente = document.getElementById("docente").value;
+            const descripcion = document.getElementById("descripcion").value;
+            const correo = document.getElementById("correo").value;
+
+            if (nombres && apellidos && descripcion && correo) {
+                alert("Consulta enviada correctamente:\n\n" +
+                      "Nombres: " + nombres + "\n" +
+                      "Apellidos: " + apellidos + "\n" +
+                      "Curso: " + curso + "\n" +
+                      "Docente: " + docente + "\n" +
+                      "Descripción: " + descripcion + "\n" +
+                      "Correo: " + correo);
+            } else {
+                alert("Por favor, completa todos los campos obligatorios.");
+            }
+        }
+    </script>
+</body>
+</html>
